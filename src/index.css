@@ -1,0 +1,26 @@
+:root {
+  font-family: sans-serif;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+svg.one-sample {
+  width: 250px;
+  height: 250px;
+  cursor: pointer;
+}
+
+hr {
+  clear: both;
+}
