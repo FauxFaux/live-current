@@ -1,3 +1,3 @@
- * `ssh errata 'cd clone/Hantek6022API; killall python3; python3 capture.py' | tee -a events.log | node tools/serve.ts`
- * `npm run dev`
- * http://localhost:5173/
+- `ssh errata 'cd clone/Hantek6022API; killall python3; python3 capture.py' | tee -a events.log | node tools/serve.ts`
+- `npm run dev`
+- http://localhost:5173/

@@ -24,6 +24,7 @@ export function App() {
   const [samples, setSamples] = useState([] as Sample[]);
   const [captured, setCaptured] = useState([] as Sample[]);
   const [ma, setMa] = useState(30);
+  const [fftCut, setFftCut] = useState(16);
   const [diffAgainst, setDiffAgainst] = useState<Sample | null>(null);
 
   useEffect(() => {
@@ -65,6 +66,21 @@ export function App() {
         />{' '}
         over <span style={'color: #dd2424'}>the current waveform</span>.
       </p>
+      <p>
+        Apply <span style={'color: green'}>FFT filtering</span> by keeping only{' '}
+        <input
+          type={'number'}
+          min={0}
+          max={512}
+          step={1}
+          value={fftCut}
+          onInput={(e) => {
+            setFftCut(parseInt(e.currentTarget.value));
+          }}
+          size={3}
+        />{' '}
+        frequency bins (of 1024).
+      </p>
       <h2>live</h2>
       {samples.map((sample, index) => (
         <span
@@ -74,7 +90,7 @@ export function App() {
             setCaptured((o) => [sample, ...o]);
           }}
         >
-          <OneSample sample={hd(sample)} ma={ma} />
+          <OneSample sample={hd(sample)} ma={ma} fftCut={fftCut} />
         </span>
       ))}
       <hr />
@@ -89,7 +105,7 @@ export function App() {
               setDiffAgainst(sample);
             }}
           >
-            <OneSample sample={hd(sample)} ma={ma} />
+            <OneSample sample={hd(sample)} ma={ma} fftCut={fftCut} />
           </span>
         ))}
       {captured.length === 0 && <p>(click a live sample to capture)</p>}

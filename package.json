@@ -4,11 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "format": "prettier --log-level warn --write .",
     "dev": "VITE_EVENT_HOST=http://localhost:4499 vite",
     "build": "tsc -b && vite build"
   },
   "dependencies": {
     "express": "^5",
+    "fft.js": "^4",
     "preact": "^10",
     "split": "^1"
   },
