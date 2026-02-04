@@ -26,7 +26,7 @@ export function OneFft({ ffts }: { ffts: LongFft[] }) {
               stroke={'#141'}
             />
             <circle cx={i} cy={c(v)} r={2} fill="#88f">
-              <title>{i/2}Hz</title>
+              <title>{i / 2}Hz</title>
             </circle>
           </>
         );

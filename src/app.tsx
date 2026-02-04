@@ -56,6 +56,7 @@ export function App() {
   const [captured, setCaptured] = useState([] as Sample[]);
   const [ma, setMa] = useState(30);
   const [fftCut, setFftCut] = useState(16);
+  const [currentScale, setCurrentScale] = useState(1);
   const [diffAgainst, setDiffAgainst] = useState<Sample | null>(null);
 
   useEffect(() => {
@@ -120,6 +121,21 @@ export function App() {
         />{' '}
         frequency bins (of 1024).
       </p>
+      <p>
+        Scale the waveform vertically by{' '}
+        <input
+          type={'number'}
+          min={0.1}
+          max={10}
+          step={0.1}
+          value={currentScale}
+          onInput={(e) => {
+            setCurrentScale(parseFloat(e.currentTarget.value));
+          }}
+          size={3}
+        />
+        .
+      </p>
       <h2>live</h2>
       {samples.map((sample, index) => (
         <span
@@ -129,7 +145,12 @@ export function App() {
             setCaptured((o) => [sample, ...o]);
           }}
         >
-          <OneSample sample={hd(sample)} ma={ma} fftCut={fftCut} />
+          <OneSample
+            sample={hd(sample)}
+            ma={ma}
+            fftCut={fftCut}
+            currentScale={currentScale}
+          />
         </span>
       ))}
       <hr />
@@ -144,7 +165,12 @@ export function App() {
               setDiffAgainst(sample);
             }}
           >
-            <OneSample sample={hd(sample)} ma={ma} fftCut={fftCut} />
+            <OneSample
+              sample={hd(sample)}
+              ma={ma}
+              fftCut={fftCut}
+              currentScale={currentScale}
+            />
           </span>
         ))}
       {captured.length === 0 && <p>(click a live sample to capture)</p>}

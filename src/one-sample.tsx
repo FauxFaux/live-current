@@ -7,10 +7,12 @@ export function OneSample({
   sample,
   ma,
   fftCut,
+  currentScale,
 }: {
   sample: Sample;
   ma: number;
   fftCut: number;
+  currentScale: number;
 }) {
   const { ch1, ch2 } = sample;
   const ch2c = [...chunks(ch2, SAMPLES_PER_WAVE)];
@@ -73,7 +75,7 @@ export function OneSample({
           strokeWidth="1"
           points={ch1
             .slice(0, SAMPLES_PER_WAVE)
-            .map((v, i) => `${i},${200 - v * 100}`)
+            .map((v, i) => `${i},${200 - v * 100 * currentScale}`)
             .join(' ')}
         />
         {ch2c.reverse().map((wave, wi) => (
@@ -82,7 +84,9 @@ export function OneSample({
               fill="none"
               stroke={`#${reds[wi]}2424`}
               strokeWidth="1"
-              points={wave.map((v, i) => `${i},${200 - v * 100}`).join(' ')}
+              points={wave
+                .map((v, i) => `${i},${200 - v * 100 * currentScale}`)
+                .join(' ')}
             />
             <polyline
               fill="none"
@@ -91,7 +95,7 @@ export function OneSample({
               points={maLine
                 .map(
                   ([offset, v], i) =>
-                    `${i * offset + offset / 2},${200 - v * 100}`,
+                    `${i * offset + offset / 2},${200 - v * 100 * currentScale}`,
                 )
                 .join(' ')}
             />
@@ -101,7 +105,9 @@ export function OneSample({
           fill="none"
           stroke="green"
           stroke-width={3}
-          points={cut.map((v, i) => `${i},${200 - v * 100}`).join(' ')}
+          points={cut
+            .map((v, i) => `${i},${200 - v * 100 * currentScale}`)
+            .join(' ')}
         />
       </svg>
     </>
