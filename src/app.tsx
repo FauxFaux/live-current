@@ -1,27 +1,58 @@
 import { useEffect, useState } from 'preact/hooks';
 import { OneSample } from './one-sample.tsx';
+import { OneFft } from './one-fft.tsx';
+
+export type ParsedLine = Sample | LongFft;
 
 export interface Sample {
   date: Date;
+  kind: '2chvc';
   ch1: number[];
   ch2: number[];
 }
 
-function parseLine(line: string): Sample {
-  const [date, ch1r, ch2r] = line.split('\t');
-  const ch1 = ch1r
-    .trim()
-    .split(' ')
-    .map((v) => parseFloat(v));
-  const ch2 = ch2r
-    .trim()
-    .split(' ')
-    .map((v) => parseFloat(v));
-  return { date: new Date(date), ch1, ch2 };
+export interface LongFft {
+  date: Date;
+  kind: 'long-fft';
+  mags: number[];
+}
+
+function parseLine(line: string): ParsedLine {
+  let [date, kind, ch1r, ch2r] = line.split('\t');
+
+  // pre-tag format
+  if (kind.length > 10) {
+    ch2r = ch1r;
+    ch1r = kind;
+    // default tag
+    kind = '2chvc';
+  }
+
+  switch (kind) {
+    case '2chvc':
+      const ch1 = ch1r
+        .trim()
+        .split(' ')
+        .map((v) => parseFloat(v));
+      const ch2 = ch2r
+        .trim()
+        .split(' ')
+        .map((v) => parseFloat(v));
+      return { date: new Date(date), kind: '2chvc', ch1, ch2 };
+    case 'long-fft':
+      const mags = ch1r
+        .trim()
+        .split(' ')
+        .map((v) => parseFloat(v));
+      return { date: new Date(date), kind: 'long-fft', mags };
+    default:
+      throw new Error('unknown kind ' + kind);
+  }
 }
 
 export function App() {
   const [samples, setSamples] = useState([] as Sample[]);
+  const [longFfts, setLongFfts] = useState([] as LongFft[]);
   const [captured, setCaptured] = useState([] as Sample[]);
   const [ma, setMa] = useState(30);
   const [fftCut, setFftCut] = useState(16);
@@ -34,15 +65,23 @@ export function App() {
     );
     es.onmessage = (event) => {
       const v = parseLine(event.data);
-      setSamples((o) => [v, ...o].slice(0, 20));
+      switch (v.kind) {
+        case '2chvc':
+          setSamples((o) => [v, ...o].slice(0, 20));
+          break;
+        case 'long-fft':
+          setLongFfts((o) => [v, ...o].slice(0, 20));
+          break;
+      }
     };
     return () => es.close();
   }, []);
 
-  const hd = (sample: Sample) => {
+  const hd = (sample: Sample): Sample => {
     if (!diffAgainst) return sample;
     return {
       date: sample.date,
+      kind: '2chvc',
       ch1: sample.ch1.map((v, i) => v - (diffAgainst?.ch1[i] ?? 0)),
       ch2: sample.ch2.map((v, i) => v - (diffAgainst?.ch2[i] ?? 0)),
     };
@@ -114,6 +153,11 @@ export function App() {
           Clear diffing.
         </p>
       )}
+      <hr />
+      <h2>fft</h2>
+      <OneFft ffts={longFfts} />
+      <hr />
+      <p style={'min-height: 400px'}></p>
     </>
   );
 }

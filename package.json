@@ -6,7 +6,7 @@
   "scripts": {
     "format": "prettier --log-level warn --write .",
     "dev": "VITE_EVENT_HOST=http://localhost:4499 vite",
-    "build": "tsc -b && vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "express": "^5",

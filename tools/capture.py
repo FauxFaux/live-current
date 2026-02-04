@@ -9,6 +9,8 @@ import time
 import sys
 from datetime import datetime
 from array import array
+from numpy.fft import rfft
+import numpy as np
 
 # Settings
 channels = 2
@@ -53,6 +55,7 @@ scope.set_ch2_voltage_range(ch2gain)
 
 ch1_buf = array('f')
 ch2_buf = array('f')
+ch2_buf_long = array('f')
 
 
 def pcb(ch1_data, ch2_data):
@@ -65,6 +68,7 @@ def pcb(ch1_data, ch2_data):
 
     ch2_scaled = scope.scale_read_data( ch2_data, ch2gain, channel=2 )
     ch2_buf.extend(ch2_scaled)
+    ch2_buf_long.extend(ch2_scaled)
 
 scope.start_capture()
 shutdown_event = scope.read_async(pcb, scope.packetsize, outstanding_transfers=10, raw=True)
@@ -82,7 +86,7 @@ def handle_bufs():
         print("no trigger")
         return
 
-    sys.stdout.write(f"{datetime.now().isoformat()}\t")
+    sys.stdout.write(f"{datetime.now().isoformat()}\t2chvc\t")
 
     for v in ch1_buf[trigger:trigger+cap]:
         sys.stdout.write(f"{v:.4f} ")
@@ -92,6 +96,18 @@ def handle_bufs():
     sys.stdout.write("\n")
     sys.stdout.flush()
 
+    # i.e. half-hertz bucket sizes
+    two_secs = sample_rate * 2
+    if len(ch2_buf_long) < trigger + two_secs:
+        return
+
+    # starting from the trigger to avoid noise at the start of captures
+    mags = np.abs(rfft(ch2_buf_long[trigger:], n=two_secs))
+    sys.stdout.write(f"{datetime.now().isoformat()}\tlong-fft\t")
+    for m in mags[:1000]:
+        sys.stdout.write(f"{m:.4f} ")
+    sys.stdout.write("\n")
+    sys.stdout.flush()
 
 while True:
     try:
