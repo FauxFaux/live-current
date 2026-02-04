@@ -12,7 +12,7 @@ export function OneFft({ ffts }: { ffts: LongFft[] }) {
       maxs[i] = Math.max(maxs[i], fft.mags[i]);
     }
   }
-  const c = (v: number) => 400 - (v / 800) * 400;
+  const c = (v: number) => Math.max(2, 400 - (v / 800) * 400);
   return (
     <svg width={1000} height={400} viewBox={'0 0 1000 400'}>
       {mags.map((v, i) => {
