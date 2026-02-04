@@ -29,6 +29,16 @@ export function OneSample({
     }
   }
 
+  const CLAMP_AMPS_PER_VOLT = 5;
+  const power = ch2c[1].map(
+    (v, i) =>
+      v *
+      CLAMP_AMPS_PER_VOLT *
+      Math.sin((i / SAMPLES_PER_WAVE) * Math.PI * 2) *
+      242,
+  );
+  const avgPower = power.reduce((a, b) => a + b, 0) / power.length;
+
   const cut: number[] = [];
   if (fftCut) {
     const f = new FFT(1024);
@@ -67,7 +77,8 @@ export function OneSample({
           strokeWidth="0.5"
         />
         <text x={10} y={20} fill={'#444444'}>
-          {((now.getTime() - sample.date.getTime()) / 1000).toFixed(1)}s ago
+          {((now.getTime() - sample.date.getTime()) / 1000).toFixed(1)}s ago,{' '}
+          {avgPower.toFixed(0)}W (avg)
         </text>
         <polyline
           fill="none"
