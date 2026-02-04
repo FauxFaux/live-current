@@ -51,7 +51,7 @@ function parseLine(line: string): ParsedLine {
 }
 
 export function App() {
-  const [samples, setSamples] = useState([] as Sample[]);
+  const [samples, setSamples] = useState({ vals: [] as Sample[], idx: 0 });
   const [longFfts, setLongFfts] = useState([] as LongFft[]);
   const [captured, setCaptured] = useState([] as Sample[]);
   const [ma, setMa] = useState(30);
@@ -60,7 +60,6 @@ export function App() {
   const [diffAgainst, setDiffAgainst] = useState<Sample | null>(null);
 
   useEffect(() => {
-    // const es = new EventSource('/events');
     const es = new EventSource(
       (import.meta.env.VITE_EVENT_HOST ?? '') + '/events',
     );
@@ -68,7 +67,15 @@ export function App() {
       const v = parseLine(event.data);
       switch (v.kind) {
         case '2chvc':
-          setSamples((o) => [v, ...o].slice(0, 20));
+          setSamples((o) => {
+            if (o.vals.length < 20) return { vals: [...o.vals, v], idx: o.idx };
+            const nv = [...o.vals];
+            nv[o.idx] = v;
+            return {
+              vals: nv,
+              idx: (o.idx + 1) % nv.length,
+            };
+          });
           break;
         case 'long-fft':
           setLongFfts((o) => [v, ...o].slice(0, 20));
@@ -137,10 +144,16 @@ export function App() {
         .
       </p>
       <h2>live</h2>
-      {samples.map((sample, index) => (
+      {samples.vals.map((sample, index) => (
         <span
           key={index}
-          style={'float: left'}
+          style={
+            'float: left; opacity: ' +
+            (((index - samples.idx + samples.vals.length) %
+              samples.vals.length) /
+              samples.vals.length +
+              0.5)
+          }
           onClick={() => {
             setCaptured((o) => [sample, ...o]);
           }}
