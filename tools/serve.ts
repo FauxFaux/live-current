@@ -1,5 +1,6 @@
 import express from 'express';
 import split from 'split';
+import * as fs from 'fs';
 
 const app = express();
 
@@ -18,6 +19,11 @@ process.stdin.pipe(split()).on('data', (line: string) => {
   for (const handler of Object.values(handlers)) {
     handler(line);
   }
+});
+
+app.get('/capture.log', (_req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  fs.createReadStream('capture.log').pipe(res);
 });
 
 app.get('/events', (req, res) => {

@@ -17,7 +17,7 @@ export interface LongFft {
   mags: number[];
 }
 
-function parseLine(line: string): ParsedLine {
+export function parseLine(line: string): ParsedLine {
   let [date, kind, ch1r, ch2r] = line.split('\t');
 
   // pre-tag format

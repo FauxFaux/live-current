@@ -107,6 +107,7 @@ def handle_bufs():
     for m in mags[:1000]:
         sys.stdout.write(f"{m:.4f} ")
     sys.stdout.write("\n")
+    ch2_buf_long.clear()
     sys.stdout.flush()
 
 while True:
