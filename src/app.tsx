@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { OneSample } from './one-sample.tsx';
+import { avgPowerOfChunk, OneSample, SAMPLES_PER_WAVE } from './one-sample.tsx';
 import { OneFft } from './one-fft.tsx';
 
 export type ParsedLine = Sample | LongFft;
@@ -143,6 +143,15 @@ export function App() {
         />
         .
       </p>
+      <h2>power (estimate)</h2>
+      {chronoSamples(samples.vals)
+        .reverse()
+        .map((sample) =>
+          Math.round(
+            avgPowerOfChunk(sample.ch2.slice(0, SAMPLES_PER_WAVE * 4)),
+          ),
+        )
+        .join(', ')}
       <h2>live</h2>
       {samples.vals.map((sample, index) => (
         <span
@@ -199,4 +208,8 @@ export function App() {
       <p style={'min-height: 400px'}></p>
     </>
   );
+}
+
+function chronoSamples(samples: Sample[]) {
+  return [...samples].sort((a, b) => a.date.getTime() - b.date.getTime());
 }

@@ -1,7 +1,7 @@
 import type { Sample } from './app.tsx';
 import FFT from 'fft.js';
 
-const SAMPLES_PER_WAVE = 400;
+export const SAMPLES_PER_WAVE = 400;
 
 export function OneSample({
   sample,
@@ -28,16 +28,7 @@ export function OneSample({
       ]);
     }
   }
-
-  const CLAMP_AMPS_PER_VOLT = 5;
-  const power = ch2c[1].map(
-    (v, i) =>
-      v *
-      CLAMP_AMPS_PER_VOLT *
-      Math.sin((i / SAMPLES_PER_WAVE) * Math.PI * 2) *
-      242,
-  );
-  const avgPower = power.reduce((a, b) => a + b, 0) / power.length;
+  const avgPower = avgPowerOfChunk(ch2c[1]);
 
   const cut: number[] = [];
   if (fftCut) {
@@ -120,6 +111,17 @@ export function OneSample({
             .map((v, i) => `${i},${200 - v * 100 * currentScale}`)
             .join(' ')}
         />
+        <line
+          x1={0}
+          x2={5}
+          y1={200 - 100 * currentScale}
+          y2={200 - 100 * currentScale}
+          stroke-width={2}
+          stroke={'gray'}
+        />
+        <text x={10} y={200 - 100 * currentScale + 4} fill={'#400'}>
+          5A
+        </text>
       </svg>
     </>
   );
@@ -129,4 +131,16 @@ function* chunks<T>(arr: T[], n: number) {
   for (let i = 0; i < arr.length; i += n) {
     yield arr.slice(i, i + n);
   }
+}
+
+export function avgPowerOfChunk(chunk: number[]) {
+  const CLAMP_AMPS_PER_VOLT = 5;
+  const power = chunk.map(
+    (v, i) =>
+      v *
+      CLAMP_AMPS_PER_VOLT *
+      Math.sin((i / SAMPLES_PER_WAVE) * Math.PI * 2) *
+      242,
+  );
+  return power.reduce((a, b) => a + b, 0) / power.length;
 }
